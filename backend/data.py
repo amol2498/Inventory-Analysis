@@ -96,7 +96,7 @@ def get_df() -> pd.DataFrame:
     return _df
 
 
-def apply_filters(df, stages, ontime_delay, delay_category, months, supplier_names=None):
+def apply_filters(df, stages, ontime_delay, delay_category, months, supplier_names=None, item_number=None):
     if supplier_names:
         df = df[df["Supplier Name"].isin(supplier_names)]
     if stages:
@@ -107,6 +107,8 @@ def apply_filters(df, stages, ontime_delay, delay_category, months, supplier_nam
         df = df[df["Delay Category"].isin(delay_category)]
     if months:
         df = df[df["Month"].isin(months)]
+    if item_number and "Item #" in df.columns:
+        df = df[df["Item #"].astype(str).str.contains(item_number, case=False, na=False)]
     return df
 
 
@@ -126,9 +128,9 @@ def get_filter_options():
     }
 
 
-def get_pivot1_data(stages, ontime_delay, delay_category, months, supplier_names=None):
+def get_pivot1_data(stages, ontime_delay, delay_category, months, supplier_names=None, item_number=None):
     full_df = get_df()
-    df = apply_filters(full_df, stages, ontime_delay, delay_category, months, supplier_names)
+    df = apply_filters(full_df, stages, ontime_delay, delay_category, months, supplier_names, item_number)
 
     if df.empty:
         return {"rows": [], "columns": ["Stages", "Total"]}
@@ -171,6 +173,26 @@ def get_pivot1_data(stages, ontime_delay, delay_category, months, supplier_names
         "rows": rows,
         "columns": ["Stages"] + month_order + ["Total"],
     }
+
+
+def get_pivot1_drill_down(stage, month, stages, ontime_delay, delay_category, months, supplier_names=None, item_number=None):
+    df = get_df()
+    df = apply_filters(df, stages, ontime_delay, delay_category, months, supplier_names, item_number)
+    df = df.dropna(subset=["Month"])
+
+    if stage and stage != "Grand Total":
+        df = df[df["Stages"] == stage]
+    if month and month != "Total":
+        df = df[df["Month"] == month]
+
+    display_cols = ["PO #", "Item #", "Stages", "Due Date", "Ontime/Delay", "Delay Category"]
+    available = [c for c in display_cols if c in df.columns]
+    result = df[available].copy()
+    result["Due Date"] = result["Due Date"].dt.strftime("%d-%b-%Y").where(result["Due Date"].notna(), other=None)
+
+    return {"rows": result.to_dict(orient="records"), "columns": available, "total": len(result)}
+
+
 def get_pivot2_data(stages, ontime_delay, delay_category, months, supplier_names=None):
     full_df = get_df()
     df = apply_filters(full_df, stages, ontime_delay, delay_category, months, supplier_names)
@@ -324,7 +346,7 @@ def get_chart2_data(stages, ontime_delay, delay_category, months, supplier_names
     def pct(n, d): return round(n / d * 100, 1) if d else 0.0
 
     chart_records = []
-    for month_sort, month in month_order:
+    for _, month in month_order:
         month_df = valid[valid["Month"] == month]
         if month_df.empty and month_totals[month] == 0:
             continue
@@ -354,7 +376,7 @@ def get_chart1_data(stages, ontime_delay, delay_category, months, supplier_names
 
     # Build chart records: [{Month: "Mar 2026", "Stage1": n, "Stage2": n, ...}]
     chart_records = []
-    for (month_sort, month), group in grouped.groupby(["Month_Sort", "Month"], sort=False):
+    for (_, month), group in grouped.groupby(["Month_Sort", "Month"], sort=False):
         record = {"Month": month}
         for _, row in group.iterrows():
             record[row["Stages"]] = int(row["Count"])

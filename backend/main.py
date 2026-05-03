@@ -116,8 +116,23 @@ def get_pivot1(
     delay_category: Optional[List[str]] = Query(default=None),
     months: Optional[List[str]] = Query(default=None),
     supplier_names: Optional[List[str]] = Query(default=None),
+    item_number: Optional[str] = Query(default=None),
 ):
-    return data.get_pivot1_data(stages, ontime_delay, delay_category, months, supplier_names)
+    return data.get_pivot1_data(stages, ontime_delay, delay_category, months, supplier_names, item_number)
+
+
+@app.get("/api/pivot1/drill-down")
+def get_pivot1_drill_down(
+    stage: Optional[str] = Query(default=None),
+    month: Optional[str] = Query(default=None),
+    stages: Optional[List[str]] = Query(default=None),
+    ontime_delay: Optional[List[str]] = Query(default=None),
+    delay_category: Optional[List[str]] = Query(default=None),
+    months: Optional[List[str]] = Query(default=None),
+    supplier_names: Optional[List[str]] = Query(default=None),
+    item_number: Optional[str] = Query(default=None),
+):
+    return data.get_pivot1_drill_down(stage, month, stages, ontime_delay, delay_category, months, supplier_names, item_number)
 
 
 @app.get("/api/pivot2")

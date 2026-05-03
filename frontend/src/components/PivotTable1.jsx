@@ -5,7 +5,7 @@
  */
 const STAGE_COL = 'Stages'
 
-export default function PivotTable1({ data }) {
+export default function PivotTable1({ data, onCellClick }) {
   const { rows, columns } = data
 
   if (!rows || rows.length === 0) {
@@ -13,6 +13,11 @@ export default function PivotTable1({ data }) {
   }
 
   const monthCols = columns.filter(c => c !== STAGE_COL && c !== 'Total')
+
+  const handleClick = (stage, month, value) => {
+    if (!onCellClick || !value) return
+    onCellClick(stage, month)
+  }
 
   return (
     <div className="table-container">
@@ -29,17 +34,35 @@ export default function PivotTable1({ data }) {
         <tbody>
           {rows.map((row, idx) => {
             const isTotalRow = row[STAGE_COL] === 'Grand Total'
+            const stage = row[STAGE_COL]
             return (
               <tr key={idx} className={isTotalRow ? 'grand-total-row' : ''}>
-                <td className="col-stage">{row[STAGE_COL]}</td>
-                {monthCols.map(col => (
-                  <td key={col} className="col-number">
-                    {row[col] ? row[col] : ''}
-                  </td>
-                ))}
-                <td className="col-number col-total-cell">
-                  {row['Total'] ?? ''}
-                </td>
+                <td className="col-stage">{stage}</td>
+                {monthCols.map(col => {
+                  const val = row[col]
+                  const clickable = onCellClick && val
+                  return (
+                    <td
+                      key={col}
+                      className={`col-number${clickable ? ' cell-clickable' : ''}`}
+                      onClick={() => handleClick(stage, col, val)}
+                    >
+                      {val || ''}
+                    </td>
+                  )
+                })}
+                {(() => {
+                  const total = row['Total']
+                  const clickable = onCellClick && total
+                  return (
+                    <td
+                      className={`col-number col-total-cell${clickable ? ' cell-clickable' : ''}`}
+                      onClick={() => handleClick(stage, 'Total', total)}
+                    >
+                      {total ?? ''}
+                    </td>
+                  )
+                })()}
               </tr>
             )
           })}

@@ -285,8 +285,48 @@ body {
 
 .section-toolbar {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   margin-bottom: 8px;
+}
+
+.item-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.item-search-input {
+  height: 28px;
+  padding: 0 28px 0 10px;
+  border: 1px solid #c8d4e8;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #374151;
+  outline: none;
+  width: 160px;
+  transition: border-color 0.15s;
+}
+
+.item-search-input:focus {
+  border-color: #1e3a5f;
+}
+
+.item-search-clear {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.item-search-clear:hover {
+  color: #444;
 }
 
 .download-link {
@@ -630,4 +670,94 @@ body {
   background: #f0f8ff;
   font-weight: 600;
   color: #1e3a5f;
+}
+
+/* ────────────────────────────────────────
+   Drill-down modal
+──────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-box {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  width: min(900px, 92vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 2px solid #f0f2f5;
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e3a5f;
+}
+
+.modal-subtitle {
+  font-size: 12px;
+  color: #888;
+  margin-top: 3px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #888;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  background: #f0f2f5;
+  color: #333;
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 16px 20px;
+  flex: 1;
+}
+
+/* Clickable pivot cells */
+.pivot-table td.cell-clickable {
+  cursor: pointer;
+  color: #1D4ED8;
+  font-weight: 600;
+}
+
+.pivot-table td.cell-clickable:hover {
+  background: #eff6ff;
+  text-decoration: underline;
+}
+
+.drill-table {
+  font-size: 12px;
+}
+
+.drill-table th,
+.drill-table td {
+  min-width: unset;
+  white-space: nowrap;
 }

@@ -22,10 +22,23 @@ export async function fetchFilters() {
   return res.json()
 }
 
-export async function fetchPivot1(filters) {
+export async function fetchPivot1(filters, itemNumber) {
   const params = buildParams(filters)
-  const res = await fetch(`${BASE_URL}/pivot1?${params}`)
+  const extra = itemNumber ? `&item_number=${encodeURIComponent(itemNumber)}` : ''
+  const res = await fetch(`${BASE_URL}/pivot1?${params}${extra}`)
   if (!res.ok) throw new Error('Failed to fetch pivot data')
+  return res.json()
+}
+
+export async function fetchPivot1DrillDown(stage, month, filters, itemNumber) {
+  const params = buildParams(filters)
+  const extra = new URLSearchParams()
+  if (stage) extra.append('stage', stage)
+  if (month) extra.append('month', month)
+  if (itemNumber) extra.append('item_number', itemNumber)
+  const qs = [params, extra.toString()].filter(Boolean).join('&')
+  const res = await fetch(`${BASE_URL}/pivot1/drill-down?${qs}`)
+  if (!res.ok) throw new Error('Failed to fetch drill-down data')
   return res.json()
 }
 
